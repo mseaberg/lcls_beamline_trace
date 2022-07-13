@@ -28,7 +28,7 @@ from skimage.restoration import unwrap_phase
 import os
 import pickle
 from ..polyprojection.legendre import LegendreFit2D
-from lcls_beamline_toolbox.xrayinteraction import interaction
+from lcls_beamline_trace.xrayinteraction import interaction
 from .util import Util, LegendreUtil
 from scipy.interpolate import interp2d, RectBivariateSpline
 import xraydb

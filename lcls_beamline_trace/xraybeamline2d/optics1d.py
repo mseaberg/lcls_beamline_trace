@@ -28,7 +28,7 @@ from .pitch import TalbotLineout
 import scipy.interpolate as interpolate
 import xrt.backends.raycing.materials as materials
 import xraydb
-from lcls_beamline_toolbox.xrayinteraction import interaction
+from lcls_beamline_trace.xrayinteraction import interaction
 
 
 class Mirror:
