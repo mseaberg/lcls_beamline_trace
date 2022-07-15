@@ -7,14 +7,14 @@ requirements = ["numpy>=1.17", "scipy>=1.4.1", "matplotlib>=3.2.1", "jupyter>=1.
                 "xrt"]
 
 setup(
-    name="lcls_beamline_toolbox",
+    name="lcls_beamline_trace",
     version="0.0.1",
     author="Matt Seaberg",
     author_email="seaberg@slac.stanford.edu",
     description="tools for LCLS beamline calculations",
     long_description=readme,
     long_description_content_type="text/markdown",
-    url="https://github.com/mseaberg/lcls_beamline_toolbox/",
+    url="https://github.com/mseaberg/lcls_beamline_trace/",
     packages=find_packages(),
     install_requires=requirements,
     classifiers=[
