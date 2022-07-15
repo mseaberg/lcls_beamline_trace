@@ -5134,6 +5134,12 @@ class Collimator:
         self.dy = dy
         self.azimuth = 0
         self.elevation = 0
+        self.xhat = None
+        self.yhat = None
+        self.zhat = None
+        self.x_intersect = 0
+        self.y_intersect = 0
+        self.z_intersect = 0
 
     def multiply(self, beam):
         """
@@ -5142,8 +5148,18 @@ class Collimator:
             Beam object to propagate through the collimator. Beam is modified by this method.
         :return: None
         """
+
+        beam_shift = np.array([self.x_intersect - self.global_x,
+                               self.y_intersect - self.global_y,
+                               self.z_intersect - self.z])
+        x_shift = np.dot(beam_shift, self.xhat)
+        y_shift = np.dot(beam_shift, self.yhat)
+
+        x = beam.x + x_shift
+        y = beam.y + y_shift
+
         # define aperture in beam coordinates
-        aperture = (np.abs((beam.x - self.dx) ** 2 + (beam.y - self.dy) ** 2) < (self.diameter / 2) ** 2).astype(float)
+        aperture = (np.abs((x - self.dx) ** 2 + (y - self.dy) ** 2) < (self.diameter / 2) ** 2).astype(float)
         # multiply beam by aperture
         beam.wave *= aperture
 
@@ -5555,6 +5571,12 @@ class Prism:
         self.orientation = orientation
         self.azimuth = 0
         self.elevation = 0
+        self.xhat = None
+        self.yhat = None
+        self.zhat = None
+        self.x_intersect = 0
+        self.y_intersect = 0
+        self.z_intersect = 0
 
         # get file name of CXRO data
         filename = os.path.join(os.path.dirname(__file__), 'cxro_data/%s.csv' % self.material)
@@ -5571,25 +5593,34 @@ class Prism:
         delta = np.interp(beam.photonEnergy, self.energy, self.delta)
         beta = np.interp(beam.photonEnergy, self.energy, self.beta)
 
+        beam_shift = np.array([self.x_intersect - self.global_x,
+                               self.y_intersect - self.global_y,
+                               self.z_intersect - self.z])
+        x_shift = np.dot(beam_shift, self.xhat)
+        y_shift = np.dot(beam_shift, self.yhat)
+
+        x = beam.x + x_shift
+        y = beam.y + y_shift
+
         # prism aperture
-        aperture = ((np.abs(beam.x - self.dx) < self.x_width / 2).astype(float) *
-                    (np.abs(beam.y - self.dy) < self.y_width / 2).astype(float))
+        aperture = ((np.abs(x - self.dx) < self.x_width / 2).astype(float) *
+                    (np.abs(y - self.dy) < self.y_width / 2).astype(float))
 
         thickness = np.zeros_like(beam.x)
         p1_x = 0
         p1_y = 0
 
         if self.orientation == 0:
-            thickness = self.slope * (beam.x - self.dx + self.x_width / 2)
+            thickness = self.slope * (x - self.dx + self.x_width / 2)
             p1_x = -delta * self.slope
         elif self.orientation == 1:
-            thickness = self.slope * (beam.y - self.dy + self.y_width / 2)
+            thickness = self.slope * (y - self.dy + self.y_width / 2)
             p1_y = -delta * self.slope
         elif self.orientation == 2:
-            thickness = -self.slope * (beam.x - self.dx - self.x_width / 2)
+            thickness = -self.slope * (x - self.dx - self.x_width / 2)
             p1_x = delta * self.slope
         elif self.orientation == 3:
-            thickness = -self.slope * (beam.y - self.dy - self.y_width / 2)
+            thickness = -self.slope * (y - self.dy - self.y_width / 2)
             p1_y = delta * self.slope
 
         # prism transmission based on beta and thickness profile
@@ -8219,6 +8250,12 @@ class WFS:
         self.fraction = 1
         self.azimuth = 0
         self.elevation = 0
+        self.xhat = None
+        self.yhat = None
+        self.zhat = None
+        self.x_intersect = 0
+        self.y_intersect = 0
+        self.z_intersect = 0
 
         # set allowed kwargs
         allowed_arguments = ['pitch', 'duty_cycle', 'f0', 'z', 'phase', 'enabled',
