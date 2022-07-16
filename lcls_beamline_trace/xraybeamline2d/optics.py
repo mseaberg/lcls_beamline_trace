@@ -5985,6 +5985,7 @@ class CRL1D(CRL):
         # multiply beam by CRL transmission function and any high order phase
         beam.wave *= transmission
 
+
 class PPM:
     """
     Class to represent profile monitor output from PPMs.
@@ -8452,6 +8453,7 @@ class WFS_Device(WFS):
         # z position in meters
         zPos = (self.z_motor.value - self.z_offset)*1e-3
         return zPos
+
 
 class PhasePlate:
     """
