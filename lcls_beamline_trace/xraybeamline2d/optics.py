@@ -110,6 +110,7 @@ class Mirror:
         self.delta = 0.
         self.roll = 0.
         self.yaw = 0.
+        self.twist = None
         self.dx = 0.
         self.dy = 0.
         self.global_x = 0
@@ -149,6 +150,39 @@ class Mirror:
         # get some material properties
         mirror_material = interaction.Mirror(name=name, range='HXR', material=self.material)
         self.density = mirror_material.density
+
+        # check for twist and add if needed
+        if self.twist is not None:
+            self.generate_twist(self.twist)
+
+    def generate_twist(self, twist):
+        """
+        Method to generate a shape error for simulating mirror twist. Adds onto existing shape error if relevant.
+        """
+        # default grid size
+        N = 1024
+        M = 1024
+        # check if there is already a shape error and make it compatible with what is needed for twist (needs to be 2D)
+        # also use shape size from existing shape error
+        if self.shapeError is None:
+            self.shapeError = np.zeros((N,M))
+        else:
+            if len(np.shape(self.shapeError))<2:
+                M = np.size(self.shapeError)
+                # tile shape error
+                self.shapeError = np.tile(np.reshape(self.shapeError,(1,M)),(N,1))
+            else:
+                N,M = np.shape(self.shapeError)
+
+        # define mirror coordinates
+        x = np.linspace(-M / 2, M / 2 - 1, M) * self.length / M
+        y = np.linspace(-N / 2, N / 2 - 1, N) * self.width / N
+        x, y = np.meshgrid(x, y)
+
+        # define twisted surface
+        total_surface = twist * y * x / np.max(x) / 2 * 1e9
+        # add to existing shape error
+        self.shapeError += total_surface
 
     def find_intersection(self, beam):
 
