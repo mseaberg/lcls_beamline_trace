@@ -136,7 +136,7 @@ class Mirror:
         # set allowed kwargs
         allowed_arguments = ['length', 'width', 'alpha', 'z', 'orientation', 'shapeError',
                              'delta', 'dx', 'dy', 'motor_list', 'roll', 'yaw', 'show_figures', 'use_reflectivity',
-                             'material']
+                             'material','twist']
         # update attributes based on kwargs
         for key, value in kwargs.items():
             if key in allowed_arguments:
@@ -162,6 +162,7 @@ class Mirror:
         # default grid size
         N = 1024
         M = 1024
+        print('adding twist')
         # check if there is already a shape error and make it compatible with what is needed for twist (needs to be 2D)
         # also use shape size from existing shape error
         if self.shapeError is None:
@@ -6307,6 +6308,9 @@ class PPM:
         f = interpolation.interp2d(x * scaling_x, y * scaling_y, profile, fill_value=0)
         # do the interpolation to get the profile we'll see on the PPM
         self.profile = f(self.x, self.y)
+
+        # account for coordinate scaling between PPM and beam
+        self.profile *= self.dx/beam.dx * self.dx/beam.dy
 
         if self.calc_phase:
             phase = unwrap_phase(np.angle(beam.wave))
