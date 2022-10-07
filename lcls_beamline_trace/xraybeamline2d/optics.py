@@ -24,6 +24,7 @@ import scipy.interpolate as interpolation
 import scipy.ndimage as ndimage
 import scipy.optimize as optimize
 import scipy.spatial.transform as transform
+from scipy.spatial import Delaunay
 from skimage.restoration import unwrap_phase
 import os
 import pickle
@@ -3482,6 +3483,17 @@ class CurvedMirror(Mirror):
         # xi[:,1] = y_out
         xi_0, xi_1 = np.meshgrid(x_out, y_out)
         print('attempting interpolation')
+
+        # interp_points = np.zeros((np.size(xi_0),2))
+        # interp_points[:,0] = xi_0
+        # interp_points[:,1] = xi_1
+
+        # tri = Delaunay(points)
+        # print('finished Delaunay')
+        #
+        # int1 = interpolation.LinearNDInterpolator(tri, mask[mask], fill_value=0)
+        # mask2 = int1(xi_0,xi_1)
+
         mask2 = interpolation.griddata(points, mask[mask], (xi_0, xi_1), method='nearest',fill_value=0)
         # mask2 = fmask(x_out,y_out)
         mask2[mask2<.9] = 0
@@ -3489,7 +3501,11 @@ class CurvedMirror(Mirror):
         mask2 = mask2 > 0.5
 
         # interpolate intensity onto new exit plane grid
+
         abs_out = interpolation.griddata(points, np.abs(beam.wave[mask]), (xi_0, xi_1), fill_value=0)
+        # int1 = interpolation.LinearNDInterpolator(tri, np.abs(beam.wave[mask]))
+        #
+        # abs_out = int1(xi_0, xi_1)
 
         # unwrap phase of beam at input
         angle_in = unwrap_phase(np.angle(beam.wave))
@@ -3553,9 +3569,18 @@ class CurvedMirror(Mirror):
         points[:, 0] = x_eff.flatten()
         points[:, 1] = y_eff.flatten()
         phase_interp = interpolation.griddata(points, total_phase.flatten(), (xi_0, xi_1), fill_value=0)
+        # int1 = interpolation.LinearNDInterpolator(tri, total_phase[mask])
+        # phase_interp = int1(xi_0,xi_1)
+
+        plt.figure()
+        plt.plot(x_eff.flatten(),y_eff.flatten(),'.')
+        plt.plot(xi_0.flatten(),xi_1.flatten(),'.')
+
 
         # interpolate the reflectivity onto the exit plane grid
         reflectivity_interp = interpolation.griddata(points, reflectivity.flatten(), (xi_0, xi_1), fill_value=0)
+        # int1 = interpolation.LinearNDInterpolator(tri, reflectivity[mask])
+        # reflectivity_interp = int1(xi_0,xi_1)
 
         # update beam complex amplitude using what has been interpolated onto the new grid
         beam.wave = abs_out * np.exp(1j * phase_interp)
