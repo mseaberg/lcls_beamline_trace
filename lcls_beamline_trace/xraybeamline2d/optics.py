@@ -3512,6 +3512,8 @@ class CurvedMirror(Mirror):
         tri = Delaunay(points)
         toc = time.perf_counter()
         print('finished Delaunay in {} seconds'.format(toc-tic))
+
+        tic = time.perf_counter()
         #
         int1 = interpolation.LinearNDInterpolator(tri, mask[mask], fill_value=0)
         mask2 = int1(xi_0,xi_1)
@@ -3602,16 +3604,13 @@ class CurvedMirror(Mirror):
 
         # phase_interp = interpolation.griddata(points, total_phase.flatten(), (xi_0, xi_1), fill_value=0)
 
-
-        plt.figure()
-        plt.plot(x_eff.flatten(),y_eff.flatten(),'.')
-        plt.plot(xi_0.flatten(),xi_1.flatten(),'.')
-
-
         # interpolate the reflectivity onto the exit plane grid
 
         int1 = interpolation.LinearNDInterpolator(tri, reflectivity[mask], fill_value=0)
         reflectivity_interp = int1(xi_0,xi_1)
+
+        toc = time.perf_counter()
+        print('finished all interpolations in {} seconds'.format(toc-tic))
 
         print('interpolated shape is {}'.format(reflectivity_interp.shape))
 
